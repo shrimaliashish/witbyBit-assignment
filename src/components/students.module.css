@@ -1,22 +1,25 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
 
 .stdMain {
+  display: flex;
+  justify-content: space-between;
 }
 .stdSidebar {
   display: inline-block;
-  float: left;
   height: 99vh;
   width: 20vw;
   background: #ffffff;
   padding: 20px;
+  box-sizing: border-box;
 }
 .stdBody {
   display: inline-block;
   float: left;
   height: 99vh;
-  width: 75vw;
+  width: 80vw;
   background: #ffffff;
   border: 1px solid #e2e5eb;
+  box-sizing: border-box;
 }
 .iconWrapper {
   background: #ffbf3f;
