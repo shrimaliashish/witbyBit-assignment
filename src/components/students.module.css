@@ -7,7 +7,7 @@
 .stdSidebar {
   display: inline-block;
   height: 99vh;
-  width: 20vw;
+  width: 25vw;
   background: #ffffff;
   padding: 20px;
   box-sizing: border-box;
@@ -16,7 +16,7 @@
   display: inline-block;
   float: left;
   height: 99vh;
-  width: 80vw;
+  width: 75vw;
   background: #ffffff;
   border: 1px solid #e2e5eb;
   box-sizing: border-box;
@@ -217,4 +217,19 @@ td {
 }
 .pagination {
   margin-left: 15px;
+}
+.active {
+  display: flex;
+  background-color: #ddf0f9;
+  width: 100%;
+  border-radius: 10px;
+  padding-top: 10px;
+  padding-left: 10px;
+}
+.active span {
+  color: #2ca4d8 !important;
+}
+.inactive {
+  display: flex;
+  padding-left: 10px;
 }
