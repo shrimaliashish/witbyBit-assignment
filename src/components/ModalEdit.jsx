@@ -25,22 +25,25 @@ const EditModal = (props) => {
 
   const nameChangehandler = (event) => {
     setName(event.target.value);
-    if (!event.target.value) {
+    if (!event.target.value || !isNaN(event.target.value)) {
       setNameErr(true);
+      setNameMsg("Error: Name field cannot be left blank");
       return;
     }
     setNameErr(false);
+    setNameMsg("");
   };
 
   const classChangehandler = (event) => {
     setClass(event.target.value);
-
     if (
+      !event.target.value ||
       parseInt(event.target.value) > 12 ||
       parseInt(event.target.value) < 1 ||
       isNaN(event.target.value)
     ) {
       setClassErr(true);
+      setClassMsg("Error: Please input values between 1 & 12");
       return;
     }
     setClassErr(false);
@@ -52,6 +55,7 @@ const EditModal = (props) => {
       setScoreErr(true);
       setResult("");
       setGrade("");
+      setScoreMsg("Error: Please input values between 1 & 100");
       return;
     }
 
