@@ -25,13 +25,39 @@ const EditModal = (props) => {
 
   const nameChangehandler = (event) => {
     setName(event.target.value);
+    if (!event.target.value) {
+      setNameErr(true);
+      return;
+    }
+    setNameErr(false);
   };
+
   const classChangehandler = (event) => {
     setClass(event.target.value);
+
+    if (
+      parseInt(event.target.value) > 12 ||
+      parseInt(event.target.value) < 1 ||
+      isNaN(event.target.value)
+    ) {
+      setClassErr(true);
+      return;
+    }
+    setClassErr(false);
   };
   const scoreChangehandler = (event) => {
     setScore(event.target.value);
     const sc = event.target.value;
+    if (!sc || sc > 100 || sc < 0 || isNaN(sc)) {
+      setScoreErr(true);
+      setResult("");
+      setGrade("");
+      return;
+    }
+
+    setScoreErr(false);
+    setScore(event.target.value);
+
     if (sc >= 0 && sc <= 30) {
       setResult("Failed");
       setGrade("Poor");
@@ -42,6 +68,8 @@ const EditModal = (props) => {
       setResult("Passed");
       setGrade("Excellent");
     }
+
+    setScoreErr(false);
   };
 
   const isAlphabet = (ch) => {
