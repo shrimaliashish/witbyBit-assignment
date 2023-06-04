@@ -1,122 +1,211 @@
-import { useState } from "react";
-import classes from "./modal.module.css";
+import { useReducer, useEffect } from "react";
+import classes from "../assets/css/modal.module.css";
+
+const errorReducer = (state, action) => {
+  switch (action.type) {
+    case "CLASS_ERROR":
+      return {
+        ...state,
+        classErrMsg: "Error: Please input values between 1 & 12",
+        isClassErr: true,
+      };
+    case "NAME_ERROR":
+      return {
+        ...state,
+        nameErrMsg: "Error: Name field cannot be left blank",
+        isNameErr: true,
+      };
+    case "SCORE_ERROR":
+      return {
+        ...state,
+        scoreErrMsg: "Error: Please input values between 1 & 100",
+        isScoreErr: true,
+      };
+    case "REMOVE_CLASS_ERROR":
+      return {
+        ...state,
+        classErrMsg: "Please input values between 1 & 12",
+        isClassErr: false,
+      };
+    case "REMOVE_NAME_ERROR":
+      return {
+        ...state,
+        nameErrMsg: "",
+        isNameErr: false,
+      };
+    case "REMOVE_SCORE_ERROR":
+      return {
+        ...state,
+        scoreErrMsg: "Please input values between 1 & 100",
+        isScoreErr: false,
+      };
+    default:
+      return state;
+  }
+};
+
+const formReducer = (state, action) => {
+  switch (action.type) {
+    case "NAME":
+      return { ...state, name: action.value };
+    case "CLASS":
+      return { ...state, class: action.value };
+    case "SCORE":
+      const sc = action.value;
+      let result = "",
+        grade = "";
+      if (sc >= 0 && sc <= 30) {
+        result = "Failed";
+        grade = "Poor";
+      } else if (sc >= 31 && sc <= 75) {
+        result = "Passed";
+        grade = "Average";
+      } else if (sc >= 76 && sc <= 100) {
+        result = "Passed";
+        grade = "Excellent";
+      }
+      return {
+        ...state,
+        score: isNaN(parseInt(sc)) ? sc : parseInt(sc),
+        result,
+        grade,
+      };
+
+    case "SCORE_ERROR":
+      return {
+        ...state,
+        score: action.value,
+        result: "",
+        grade: "",
+      };
+    default:
+      return state;
+  }
+};
+
+const intitialErr = {
+  nameErrMsg: "",
+  isNameErr: false,
+  classErrMsg: "Please input values between 1 & 12",
+  isClassErr: false,
+  scoreErrMsg: "Please input values between 1 & 100",
+  isScoreErr: false,
+};
+
+const formInitialData = {
+  name: "",
+  class: "",
+  score: "",
+  result: "",
+  grade: "",
+};
 
 const Modal = (props) => {
-  const [name, setName] = useState("");
-  const [Class, setClass] = useState("");
-  const [score, setScore] = useState("");
-  const [result, setResult] = useState("");
-  const [grade, setGrade] = useState("");
-  const [nameMsg, setNameMsg] = useState("");
-  const [classMsg, setClassMsg] = useState(
-    "please input values between 1 & 12"
-  );
-  const [scoreMsg, setScoreMsg] = useState(
-    "please input values between 1 & 100"
-  );
-
-  const [nameErr, setNameErr] = useState(false);
-  const [classErr, setClassErr] = useState(false);
-  const [scoreErr, setScoreErr] = useState(false);
-
+  const [formData, dispatch] = useReducer(formReducer, formInitialData);
+  const [err, dispathErr] = useReducer(errorReducer, intitialErr);
   const closeHandler = () => {
     props.onClose();
   };
 
   const nameChangehandler = (event) => {
-    setName(event.target.value);
-    if (!event.target.value || !isNaN(event.target.value)) {
-      setNameErr(true);
-      setNameMsg("Error: Name field cannot be left blank");
+    if (event.target.value !== "" && !isNaN(event.target.value)) return;
+    dispatch({ type: "NAME", value: event.target.value });
+    if (!event.target.value) {
+      dispathErr({ type: "NAME_ERROR" });
       return;
     }
-    setNameErr(false);
-    setNameMsg("");
+    dispathErr({ type: "REMOVE_NAME_ERROR" });
   };
   const classChangehandler = (event) => {
-    setClass(event.target.value);
+    if (event.target.value !== "" && isNaN(event.target.value)) return;
+    dispatch({ type: "CLASS", value: event.target.value });
     if (
       !event.target.value ||
       parseInt(event.target.value) > 12 ||
-      parseInt(event.target.value) < 1 ||
-      isNaN(event.target.value)
+      parseInt(event.target.value) < 1
     ) {
-      setClassErr(true);
-      setClassMsg("Error: Please input values between 1 & 12");
+      dispathErr({ type: "CLASS_ERROR" });
       return;
     }
-    setClassErr(false);
+    dispathErr({ type: "REMOVE_CLASS_ERROR" });
   };
+
   const scoreChangehandler = (event) => {
-    setScore(event.target.value);
     const sc = event.target.value;
-    if (!sc || sc > 100 || sc < 0 || isNaN(sc)) {
-      setScoreErr(true);
-      setResult("");
-      setGrade("");
-      setScoreMsg("Error: Please input values between 1 & 100");
+    if (sc !== "" && isNaN(sc)) return;
+
+    if (!sc || sc > 100 || sc < 0) {
+      dispatch({ type: "SCORE_ERROR", value: event.target.value });
+      dispathErr({ type: "SCORE_ERROR" });
       return;
     }
-    setScoreErr(false);
-    setScore(event.target.value);
+    dispatch({ type: "SCORE", value: event.target.value });
 
-    if (sc >= 0 && sc <= 30) {
-      setResult("Failed");
-      setGrade("Poor");
-    } else if (sc >= 31 && sc <= 75) {
-      setResult("Passed");
-      setGrade("Average");
-    } else if (sc >= 76 && sc <= 100) {
-      setResult("Passed");
-      setGrade("Excellent");
-    }
+    dispathErr({ type: "REMOVE_SCORE_ERROR" });
+  };
 
-    setScoreErr(false);
-  };
-  const resultChangehandler = (event) => {
-    setResult(event.target.value);
-  };
-  const gradeChangehandler = (event) => {
-    setGrade(event.target.value);
-  };
   const submitHandler = () => {
     let error = false;
-    if (!name) {
-      setNameErr(true);
-      setNameMsg("Error: Name field cannot be left blank");
-      error = true;
-    }
-    if (!Class || isNaN(Class) || parseInt(Class) < 0 || parseInt(Class) > 12) {
-      setClassErr(true);
-      setClassMsg("Error: please input values between 1 & 100");
+    if (!formData.name) {
+      dispathErr({ type: "NAME_ERROR" });
       error = true;
     }
     if (
-      !score ||
-      isNaN(score) ||
-      parseInt(score) < 0 ||
-      parseInt(score) > 100
+      !formData.class ||
+      isNaN(formData.class) ||
+      parseInt(formData.class) < 0 ||
+      parseInt(formData.class) > 12
     ) {
-      setScoreErr(true);
-      setScoreMsg("Error: please input values between 1 & 100");
+      dispathErr({ type: "CLASS_ERROR" });
+      error = true;
+    }
+    if (
+      !formData.score ||
+      isNaN(formData.score) ||
+      parseInt(formData.score) < 0 ||
+      parseInt(formData.score) > 100
+    ) {
+      dispathErr({ type: "SCORE_ERROR" });
       error = true;
     }
 
     if (error) {
       return;
     }
-    props.onAdd({
-      name,
-      class: `${Class}Th`,
-      score,
+    if (props.type === "ADD") {
+      props.onSubmit({
+        name: formData.name,
+        class: formData.class,
+        score: formData.score,
+      });
+      return;
+    }
+    props.onSubmit({
+      id: props.id,
+      name: formData.name,
+      class: formData.class,
+      score: formData.score,
     });
   };
+  const fillData = () => {
+    const student = props.students.find((student) => {
+      return student.id === props.id;
+    });
+    dispatch({ type: "SCORE", value: student.score });
+    dispatch({ type: "NAME", value: student.name });
+    dispatch({ type: "CLASS", value: student.class });
+  };
+  useEffect(() => {
+    if (props.type === "EDIT") {
+      fillData();
+    }
+  }, []);
 
   return (
     <div className={classes.popupBox}>
       <div className={classes.box}>
         <div className={classes.head}>
-          <h3>Add Student</h3>
+          <h3>{props.type === "EDIT" ? "Edit" : "Add"} Student</h3>
         </div>
         <div className={classes.form}>
           <div className={classes.inp}>
@@ -125,11 +214,15 @@ const Modal = (props) => {
                 STUDENT NAME*
               </label>
             </div>
-            <div className={nameErr ? classes.error : ""}>
-              <input type="text" value={name} onChange={nameChangehandler} />
+            <div className={err.isNameErr ? classes.error : ""}>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={nameChangehandler}
+              />
             </div>
-            {nameMsg && (
-              <p className={nameErr ? classes.error : ""}>
+            {err.nameErrMsg && (
+              <p className={err.isNameErr ? classes.error : ""}>
                 Error:Name field cannot be left blank
               </p>
             )}
@@ -140,10 +233,16 @@ const Modal = (props) => {
                 CLASS*
               </label>
             </div>
-            <div className={classErr ? classes.error : ""}>
-              <input type="text" value={Class} onChange={classChangehandler} />
+            <div className={err.isClassErr ? classes.error : ""}>
+              <input
+                type="text"
+                value={formData.class}
+                onChange={classChangehandler}
+              />
             </div>
-            <p className={classErr ? classes.error : ""}>{classMsg}</p>
+            <p className={err.isClassErr ? classes.error : ""}>
+              {err.classErrMsg}
+            </p>
           </div>
           <div className={classes.inp}>
             <div>
@@ -151,10 +250,16 @@ const Modal = (props) => {
                 SCORE*
               </label>
             </div>
-            <div className={scoreErr ? classes.error : ""}>
-              <input type="text" value={score} onChange={scoreChangehandler} />
+            <div className={err.isScoreErr ? classes.error : ""}>
+              <input
+                type="text"
+                value={formData.score}
+                onChange={scoreChangehandler}
+              />
             </div>
-            <p className={scoreErr ? classes.error : ""}>{scoreMsg}</p>
+            <p className={err.isScoreErr ? classes.error : ""}>
+              {err.scoreErrMsg}
+            </p>
           </div>
           <div className={classes.inp}>
             <div>
@@ -163,14 +268,14 @@ const Modal = (props) => {
             <div>
               <div
                 className={
-                  result === "Passed"
+                  formData.result === "Passed"
                     ? classes.passed
-                    : result === "Failed"
+                    : formData.result === "Failed"
                     ? classes.failed
                     : ""
                 }
               >
-                {result ? result : "-"}
+                {formData.result ? formData.result : "-"}
               </div>
             </div>
           </div>
@@ -179,14 +284,14 @@ const Modal = (props) => {
               <label htmlFor="studentName">GRADE</label>
               <div
                 className={
-                  grade == "Excellent"
+                  formData.grade === "Excellent"
                     ? classes.excellent
-                    : grade == "Poor"
+                    : formData.grade === "Poor"
                     ? classes.poor
                     : classes.average
                 }
               >
-                {grade ? grade : "-"}
+                {formData.grade ? formData.grade : "-"}
               </div>
             </div>
             <div>

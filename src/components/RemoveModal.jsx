@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import classes from "./removeModal.module.css";
+import classes from "../assets/css/removeModal.module.css";
 const RemoveModal = (props) => {
   const [name, setName] = useState("");
   const [Class, setClass] = useState("");
